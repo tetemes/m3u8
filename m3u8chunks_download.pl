@@ -105,7 +105,7 @@ print "\n";
 if($unsuccessfuldownloads == 0){
 	`echo > $tempdir/tj.mp4`;
 	foreach my $chunk (@chunks){
-		print "\rDownload finished, concatenating... ".++$cnt."/".$numofchunks;
+		print "\rDownload finished, merging... ".++$cnt."/".$numofchunks;
 #		print "cat $tempdir/$chunk >> $tempdir/tj.mp4\n";
 		`cat $tempdir/$chunk >> $tempdir/tj.mp4`;
 		unlink "$tempdir/$chunk";
