@@ -11,8 +11,21 @@ Link to m3u8 file in form of a *double quoted command line argument*
 ./m3u8tmp/tj.mp4
 
 #### Usage
-perl m3u8chunks_download.pl "http://...m3u8"
+`perl m3u8chunks_download.pl "http://...m3u8"`
 
-1. Creates m3u8tmp folder in the current directory
-2. Downloads m3u8 manifest file and chunks in the temporary directory
-3. Concatenates the chunks
+#### Blocks of execution
+1. Create *m3u8tmp* folder in the current directory
+
+2. Downloads m3u8 manifest file and chunks in this temporary directory
+
+    Display:
+
+    `Parsing chunkfile... 157 chunks`
+
+    `Started 103/157   Finished 84/157   Unsuccessful 0/157   Active 19`
+
+3. Concatenates the chunks into *./m3u8tmp/tj.mp4*
+
+    Display:
+
+    `Download finished, concatenating... 157/157`
