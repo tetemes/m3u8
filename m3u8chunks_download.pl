@@ -11,14 +11,42 @@ use Data::Dumper;
 use Parallel::ForkManager;
 use File::Basename;
 
+if (not defined $ARGV[0]){
+	die "\nUsage:\nperl $0 \"http://Link_to_m3u8_file\" [outpath/outfile.mp4]\n";
+}
+
+my $m3u8link = $ARGV[0];
+my $output = '';
 my $tempdir = 'm3u8tmp';
-basename($ARGV[0]) =~ m/([^\?]+)\??/;
+my $outputfile = 'tj.mp4';
+
+if (defined $ARGV[1]){
+	if ( ( $ARGV[0] =~ m/\:\/\// ) && ( $ARGV[1] !~ m/\:\/\// ) ){
+		$m3u8link = $ARGV[0];
+		$output = $ARGV[1];
+	}
+	elsif( ( $ARGV[1] =~ m/\:\/\// ) && ( $ARGV[0] !~ m/\:\/\// ) ){
+		$m3u8link = $ARGV[1];
+		$output = $ARGV[0];
+	}
+	else{
+		die "Only one of the arguments should be internet link!\n";
+	}
+}
+
+#print "m3u8link: $m3u8link\n";
+#print "output  : $output\n";
+
+basename($m3u8link) =~ m/([^\?]+)\??/;
 my $chunklistname = $1;
-my $chunklistlocation = dirname($ARGV[0]);
+my $chunklistlocation = dirname($m3u8link);
 my $fullpathinm3u8 = 0;
 
+if($output ne ''){$tempdir = dirname($output); $outputfile = basename($output);}
+
 `mkdir -p $tempdir`;
-`wget -c "$ARGV[0]" -O $tempdir/$chunklistname`;
+if ($? > 0){die "\nCould not create output directory $tempdir\n";}
+`wget -c "$m3u8link" -O $tempdir/$chunklistname`;
 if ($? != 0){die "Could not download manifest file. Exiting\n"}
 open (CHUNKFILE, "< $tempdir/$chunklistname") || die "can't open $tempdir/$chunklistname\n";
 my @chunks=(); # chunkid, chunkfilename (e.g. 0, something.mp4)
@@ -72,6 +100,12 @@ $pm->run_on_finish(
 	}
 );
 
+$pm->run_on_wait(
+	sub {
+		print "\rStarted ".$chunkordinal."/".$numofchunks."   Finished ".$finishedchildren."/".$numofchunks."   Unsuccessful ".$unsuccessfuldownloads."/".$numofchunks."   Active ".($chunkordinal - $finishedchildren)."     ";
+	},
+	1
+);
 CHUNK_LOOP:
 foreach my $chunk (@chunkstodownload){
 	# Forks and returns the pid for the child:
@@ -103,11 +137,11 @@ print "\nParallel download processes finished.\n";
 my $cnt = 0;
 print "\n";
 if($unsuccessfuldownloads == 0){
-	`echo > $tempdir/tj.mp4`;
+	`echo > $tempdir/$outputfile`;
 	foreach my $chunk (@chunks){
 		print "\rDownload finished, merging... ".++$cnt."/".$numofchunks;
-#		print "cat $tempdir/$chunk >> $tempdir/tj.mp4\n";
-		`cat $tempdir/$chunk >> $tempdir/tj.mp4`;
+#		print "cat $tempdir/$chunk >> $tempdir/$outputfile\n";
+		`cat $tempdir/$chunk >> $tempdir/$outputfile`;
 		unlink "$tempdir/$chunk";
 	}
 	unlink "$tempdir/$chunklistname";
