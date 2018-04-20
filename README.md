@@ -11,7 +11,9 @@ Link to m3u8 file in form of a *double quoted command line argument*
 ./m3u8tmp/tj.mp4
 
 #### Usage
-`perl m3u8chunks_download.pl "http://...m3u8"`
+`perl m3u8chunks_download.pl "http://...m3u8" [outputpath/outputfilename.mp4]`
+
+Order of arguments does not matter, but the m3u8 link must be an internet link.
 
 #### Blocks of execution
 1. Create *m3u8tmp* folder in the current directory
@@ -28,4 +30,4 @@ Link to m3u8 file in form of a *double quoted command line argument*
 
     Display:
 
-    `Download finished, concatenating... 157/157`
+    `Download finished, merging... 157/157`
