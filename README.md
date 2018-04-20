@@ -1,6 +1,6 @@
 # m3u8
 
-Downloads and concatenates chunks of an HLS video.
+Downloads and merges chunks of an HLS video.
 Downloading is done in parallel using Parallel::ForkManager perl module.
 Concatenation is performed when each and every chunk is downloaded.
 
@@ -16,7 +16,7 @@ Link to m3u8 file in form of a *double quoted command line argument*
 #### Blocks of execution
 1. Create *m3u8tmp* folder in the current directory
 
-2. Downloads m3u8 manifest file and chunks in this temporary directory
+2. Download m3u8 manifest file and chunks in this temporary directory
 
     Display:
 
@@ -24,7 +24,7 @@ Link to m3u8 file in form of a *double quoted command line argument*
 
     `Started 103/157   Finished 84/157   Unsuccessful 0/157   Active 19`
 
-3. Concatenates the chunks into *./m3u8tmp/tj.mp4*
+3. Merge the chunks into *./m3u8tmp/tj.mp4*
 
     Display:
 
