@@ -31,3 +31,10 @@ Order of arguments does not matter, but the m3u8 link must be an internet link.
     Display:
 
     `Download finished, merging... 157/157`
+
+#### Requirements
+
+* cygwin - This script was tested in cygwin. It is supposed to work in Linux as well.
+* wget - used for downloading the manifest file and the chunks
+* make - to install Parallel::ForkManager
+* Parallel::ForkManager - to download the chunks in parallel. Command to install: `cpan Parallel::ForkManager` . You may need elevated rights in Linux.
