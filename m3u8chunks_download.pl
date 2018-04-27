@@ -19,6 +19,11 @@ my $m3u8link = $ARGV[0];
 my $output = '';
 my $tempdir = 'm3u8tmp';
 my $outputfile = 'tj.mp4';
+my $urlarg = 0;
+foreach my $arg (@ARGV){
+	if ($arg =~ m/\:\/\//){$urlarg = 1}
+}
+if (! $urlarg) {die "One of the arguments should be internet link!\n";}
 
 if (defined $ARGV[1]){
 	if ( ( $ARGV[0] =~ m/\:\/\// ) && ( $ARGV[1] !~ m/\:\/\// ) ){
@@ -28,9 +33,6 @@ if (defined $ARGV[1]){
 	elsif( ( $ARGV[1] =~ m/\:\/\// ) && ( $ARGV[0] !~ m/\:\/\// ) ){
 		$m3u8link = $ARGV[1];
 		$output = $ARGV[0];
-	}
-	else{
-		die "Only one of the arguments should be internet link!\n";
 	}
 }
 
@@ -73,7 +75,7 @@ close(CHUNKFILE);
 my $numofchunks = scalar @chunks;
 print " $numofchunks chunks\n";
 
-my $MAX_PROCESSES = 50;
+my $MAX_PROCESSES = 100;
 
 my $chunkordinal = 0;
 my $chunksdownloaded = 1;
