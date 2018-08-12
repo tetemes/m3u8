@@ -75,7 +75,7 @@ close(CHUNKFILE);
 my $numofchunks = scalar @chunks;
 print " $numofchunks chunks\n";
 
-my $MAX_PROCESSES = 100;
+my $MAX_PROCESSES = 90;
 
 my $chunkordinal = 0;
 my $chunksdownloaded = 1;
