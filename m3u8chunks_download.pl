@@ -36,19 +36,29 @@ if (defined $ARGV[1]){
 	}
 }
 
-#print "m3u8link: $m3u8link\n";
-#print "output  : $output\n";
+print "M3U8LINK : $m3u8link\n";
+print "OUTPUT TO: $output\n";
 
-basename($m3u8link) =~ m/([^\?]+)\??/;
-my $chunklistname = $1;
-my $chunklistlocation = dirname($m3u8link);
+# to be removed: $m3u8link =~ m/^(.*\/)?([^\?]+)\?[^\?]+/;
+my $chunklist = $m3u8link;
+$chunklist =~ /^([^\?]+\/)([^\?\/]+)\??/;
+my $chunklistlocation = $1;
+my $chunklistname = $2;
+print "CHUNKLISTLOCATION: $chunklistlocation\n";
+print "CHUNKLISTNAME    : $chunklistname\n";
+# exit;
+# my $chunklistlocation = $1;
+# my $chunklistname = $2;
 my $fullpathinm3u8 = 0;
+#print '$chunklistlocation '.$chunklistlocation."\n";
+#print '$chunklistname '.$chunklistname."\n";
 
 if($output ne ''){$tempdir = dirname($output); $outputfile = basename($output);}
+print "OUTPUTDIR: $tempdir\n";
 
 `mkdir -p $tempdir`;
 if ($? > 0){die "\nCould not create output directory $tempdir\n";}
-`wget -c "$m3u8link" -O $tempdir/$chunklistname`;
+`wget -qc "$m3u8link" -O $tempdir/$chunklistname`;
 if ($? != 0){die "Could not download manifest file. Exiting\n"}
 open (CHUNKFILE, "< $tempdir/$chunklistname") || die "can't open $tempdir/$chunklistname\n";
 my @chunks=(); # chunkid, chunkfilename (e.g. 0, something.mp4)
@@ -60,22 +70,30 @@ while(<CHUNKFILE>){
 	if ((/^\s*?#/) || (/^$/) ){next;}
 	if ( /\:\/\// ){$fullpathinm3u8 = 1;}
 	chomp();
-	basename($_) =~ m/([^\?]+)\??/;
-	$chunkname = $1;
+	#print '$_: '.$_."\n";
+	$_ =~ m/^([^\?]+\/)?([^\?\/]+)\??/;
+# 	$_ =~ m/^(.*\/)?([^\?]+)\?[^\?]+/;
+	#print '$2: '.$2."\n";
+	$chunkname = $2;
+# 	print 'AAAA '.$chunkname."\n";
+	
 	$chunks[$chunkid] = $chunkname;
 	if($fullpathinm3u8){
 		$chunkstodownload[$chunkid] = $_;
 	}
 	else{
-		$chunkstodownload[$chunkid] = basename($_);
+		$chunkstodownload[$chunkid] = $_;
+		#print '$_: '.$_."\n";
 	}
 	$chunkid++;
 }
 close(CHUNKFILE);
+
+
 my $numofchunks = scalar @chunks;
 print " $numofchunks chunks\n";
 
-my $MAX_PROCESSES = 90;
+my $MAX_PROCESSES = 40;
 
 my $chunkordinal = 0;
 my $chunksdownloaded = 1;
@@ -125,7 +143,7 @@ foreach my $chunk (@chunkstodownload){
 			$errcode = $?;
 		}
 		else {
-			`wget -qc "$chunklistlocation/$chunk" -O $tempdir/$chunkname -o /dev/null &> /dev/null`;
+            `wget -qc "$chunklistlocation$chunk" -O $tempdir/$chunkname -o /dev/null &> /dev/null`;
 			$errcode = $?;
 		}
 	}
@@ -146,7 +164,10 @@ if($unsuccessfuldownloads == 0){
 		`cat $tempdir/$chunk >> $tempdir/$outputfile`;
 		unlink "$tempdir/$chunk";
 	}
+    print "\nSaved into $tempdir/$outputfile\n";
+	#print "\n\nREMOVING $tempdir/$chunklistname \n";
 	unlink "$tempdir/$chunklistname";
+# 	print "\n";
 }
 else{
 	print STDERR "ERROR: Download incomplete! At least one chunk is incomplete.\n";
